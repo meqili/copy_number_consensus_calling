@@ -24,7 +24,6 @@ readCNVnatorTable <- function(nator_txt_file){
     separate(CNV_id, into = c("CHROM", "POS_END"), sep = ":", remove = TRUE) %>%
     separate(POS_END, into = c("POS", "END"), sep = "-", remove = TRUE)
 }
-nator_cnv <- readCNVnatorVcf(nator_txt_file)
 
 readGatkVcf <- function(gatk_vcf_file) {
   vcf <- read.vcfR(gatk_vcf_file)
@@ -42,15 +41,17 @@ readGatkVcf <- function(gatk_vcf_file) {
     mutate(SVLEN = END - POS +1)
   return(variants)
 }
-gatk_cnv <- readGatkVcf(gatk_vcf_file)
 
-writeOutputs < function(sample_id, nator_cnv, gatk_cnv) {
-}
 
 # nator_vcf_file <- "Q1777/BS_529GMFX4/2b8b954b-20c3-406b-912a-d3dbaf07e741.mixed_cohort.cnvnator_call.vcf"
 nator_txt_file <- "Q1777/BS_529GMFX4/2b8b954b-20c3-406b-912a-d3dbaf07e741.mixed_cohort.cnvnator_call.txt"
 gatk_vcf_file <- "Q1777/BS_529GMFX4/2b8b954b-20c3-406b-912a-d3dbaf07e741.mixed_cohort.gatk_gcnv.genotyped_segments.vcf"
-SAMPLEID <- "BS_529GMFX4"
 
+nator_cnv <- readCNVnatorTable(nator_txt_file)
+gatk_cnv <- readGatkVcf(gatk_vcf_file)
 
+nator_cnv_file_name = paste0(dirname(nator_txt_file), "/cnv-cnvnator.tsv")
+gatk_cnv_file_name = paste0(dirname(nator_txt_file), "/cnv-gatk.tsv")
 
+write_tsv(nator_cnv, nator_cnv_file_name)
+write_tsv(gatk_cnv, gatk_cnv_file_name)
