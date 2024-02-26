@@ -2,6 +2,7 @@ library(tidyverse)
 library(tidyr)
 library(vcfR)
 
+setwd("/Users/liq3/gatkCNV_cnvnator_cnv_analysis/Q1777/")
 ## if CNVnator input is in VCF format, using following code
 # readCNVnatorVcf <- function(nator_vcf_file) {
 #   vcf <- read.vcfR(vcf_file)
@@ -55,3 +56,11 @@ gatk_cnv_file_name = paste0(dirname(nator_txt_file), "/cnv-gatk.tsv")
 
 write_tsv(nator_cnv, nator_cnv_file_name)
 write_tsv(gatk_cnv, gatk_cnv_file_name)
+
+
+# Q1777
+for (gatk_file in list.files(pattern = ".mixed_cohort.gatk_gcnv.genotyped_segments.vcf.gz")) {
+  gatk_cnv <- readGatkVcf(gatk_file)
+  gatk_cnv_file_name = gsub("vcf.gz", "vcf.tsv", gatk_file)
+  write_tsv(gatk_cnv, gatk_cnv_file_name)
+}
