@@ -2,6 +2,7 @@ cwlVersion: v1.2
 class: CommandLineTool
 
 requirements:
+- class: InlineJavascriptRequirement
 - class: DockerRequirement
   dockerPull: 'pgc-images.sbgenomics.com/qqlii44/python:3.8.10'
 - class: InitialWorkDirRequirement
@@ -24,5 +25,5 @@ baseCommand: [bash -c]
 arguments:
 - position: 0
   valueFrom: |-
-    python3 restructure_column.py --file $(inputs.merged_bedfile.path) > $(inputs.merged_bedfile.nameroot).filtered3.bed
+    python3 restructure_column.py --file $(inputs.merged_bedfile.path) > $(inputs.filtered_bedfile.basename.replace("filtered2.bed", "filtered3.bed"))
   shellQuote: true
