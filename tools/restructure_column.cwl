@@ -25,5 +25,5 @@ baseCommand: [bash -c]
 arguments:
 - position: 0
   valueFrom: |-
-    python3 restructure_column.py --file $(inputs.merged_bedfile.path) > $(inputs.filtered_bedfile.basename.replace("filtered2.bed", "filtered3.bed"))
+    python3 restructure_column.py --file $(inputs.merged_bedfile.path) > $(inputs.merged_bedfile.basename.replace("filtered2.bed", "filtered3.bed"))
   shellQuote: true
