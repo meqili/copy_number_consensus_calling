@@ -36,6 +36,8 @@ inputs:
       prefix: --familyID
       position: 3
       shellQuote: false
+  cnv_type:
+    type: string
       
 
 outputs:
@@ -53,6 +55,6 @@ baseCommand:
   - python
 arguments:
   - valueFrom: |-
-      compare_variant_calling_updated.py --child_parent1 $(inputs.famly_id).child_parent1.bed --child_parent2 $(inputs.famly_id).child_parent2.bed
+      compare_variant_calling_updated.py --child_parent1 $(inputs.famly_id).$(inputs.cnv_type).child_parent1.bed --child_parent2 $(inputs.famly_id).$(inputs.cnv_type).child_parent2.bed
     shellQuote: false
     position: 1
