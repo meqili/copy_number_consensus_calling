@@ -24,6 +24,10 @@ outputs:
     type: File
     outputBinding:
       glob: "*.del.merged.final.bed"
+  final_family_all_merge_bed_file:
+    type: File
+    outputBinding:
+      glob: "*all_CNVs_combined.tsv"
 
 baseCommand: [/bin/bash, -c]
 arguments:
@@ -47,5 +51,9 @@ arguments:
        > $(inputs.famly_id).dup.merged.final.bed &&
       cat $(inputs.famly_id).del-dup.bed  $(inputs.famly_id).del_intersect.bed  \
        > $(inputs.famly_id).del.merged.final.bed
+        ## Take all of the del and dup files of ALL samples as input.
+      echo -e 'chrom\tstart\tend\tchild_CNVs\tp1_CNVs\tp2_CNVs\tCNV_type\tFamilyID' > $(inputs.famly_id).all_CNVs_combined.tsv
+      cut -f 1-8 $(inputs.famly_id).del.merged.final.bed $(inputs.famly_id).dup.merged.final.bed  \
+        | sort -k1,1V -k2,2n >> $(inputs.famly_id).all_CNVs_combined.tsv
     shellQuote: false
 
