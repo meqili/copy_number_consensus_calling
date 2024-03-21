@@ -7,12 +7,12 @@ $namespaces:
 
 requirements:
 - class: DockerRequirement
-  dockerPull: 'kible/coreutils:x86'
+  dockerPull: 'pgc-images.sbgenomics.com/qqlii44/vcfr-with-tidyverse:1.0'
 - class: InitialWorkDirRequirement
   listing:
-    - entryname: gatk_filter_script.sh
+    - entryname: gatk_filter_script.R
       entry:
-        $include: ../scripts/gatk_filter_script.sh
+        $include: ../scripts/gatk_filter_script.R
 
 inputs:
   gatk_cnv_input_file:
@@ -25,14 +25,15 @@ outputs:
   gatk_del:
     type: File
     outputBinding:
-      glob: "*.gatk.del.bed"
+      glob: "*.gatkcnv.del.bed"
   gatk_dup:
     type: File
     outputBinding:
-      glob: "*.gatk.dup.bed"
+      glob: "*.gatkcnv.dup.bed"
 
-baseCommand: [/bin/bash, gatk_filter_script.sh]
+baseCommand: [Rscript, gatk_filter_script.R]
 
 arguments:
   - valueFrom: $(inputs.gatk_cnv_input_file.path)
   - valueFrom: $(inputs.cnv_size_cutoff)
+  - valueFrom: $(inputs.gatk_cnv_input_file.nameroot)
