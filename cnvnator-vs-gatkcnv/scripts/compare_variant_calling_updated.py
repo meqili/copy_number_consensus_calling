@@ -1,23 +1,24 @@
 ################## PURPOSE #################
 
-# This script is to do PAIR comparisons using the three 3 sample CNVs files
-# This script takes in the 3 sample CNVs files and put their content in to a nested dictionary.
-# There are 3 dictionaries within the bigger dictionary , each dictionary is the content of a singular sample method.
+# This script is to do PAIR comparisons using the three 3 caller CNVs files
+# This script takes in the 3 caller CNVs files and put their content in to a nested dictionary.
+# There are 3 dictionaries within the bigger dictionary , each dictionary is the content of a singular caller method.
 
 # For-loops are used to loop through these 3 files to do pair comparison of the 3 files.
-# We compare child - parent1
-# and  child - parent2
-# We'll end up with 2 output files.
+# We compare gatk - cnvnator
+# then  gatk - freec
+# and finally cnvnator - freec
+# We'll end up with 3 output files.
 
 # The principle for finding consensus CNVs is that if any two CNVs overlap at least 50% reciprocally,
-# OR any CNV in a sample overlaps 90% or more of a CNV region in another sample
+# OR any CNV in a caller overlaps 90% or more of a CNV region in another caller
 # we will take the common section of those overlapping CNVs as the new consensus CNV.
 
 ################# Output format ###############
 
 #   column1    column2     column3     column4                     column5                     column6                  column7     column8     column9
 #
-#   chr#       consensus   consensus   raw child coordinates       raw parent1 coordinates      raw parent2 coordinates    cnv type    sample      filename
+#   chr#       consensus   consensus   raw gatk coordinates       raw cnvnator coordinates      raw freec coordinates    cnv type    sample      filename
 #              start_pos   end_pos     that made up this CNV       that made up this CNV       that made up this CNV                name
 
 ################# ASSUMPTION ###############
@@ -30,15 +31,15 @@
 # Imports in the pep8 order https://www.python.org/dev/peps/pep-0008/#imports
 # Standard library
 import argparse
-# import itertools
+import itertools
 import os
 import re
-# import sys
+import sys
 
 
 # Related third party
 import numpy as np
-# import pandas as pd
+import pandas as pd
 
 
 ########################## DEFINE FUNCTIONS ###############################
@@ -180,7 +181,7 @@ def generate_consensus(list1_name, list1, list2_name, list2):
                     or (coverage_list1 > 0 and coverage_list2 >= 0.9)
                 ):
                     ## if it is 50% reciprocally
-                    ## OR any CNV overlaps 90% or more of CNV region in another sample
+                    ## OR any CNV overlaps 90% or more of CNV region in another caller
                     ## we chose from the list2 starts and ends
                     fin_start_list2 = min(list2_start_list)
                     fin_end_list2 = max(list2_end_list)
@@ -191,13 +192,13 @@ def generate_consensus(list1_name, list1, list2_name, list2):
                     chrom_end = min(fin_end_list2, end_list1)
 
                     ## Format the output consensus CNV
-                    ## Column 4 is child's raw coordinates
-                    ## Column 5 is parent1's raw coordinates
-                    ## Column 6 is parent2's raw coordinates
+                    ## Column 4 is gatk's raw coordinates
+                    ## Column 5 is cnvnator's raw coordinates
+                    ## Column 6 is freec's raw coordinates
 
-                    ## if the files input are child and parent1, put info in column 4 and 5, 6th column is null
-                    if (list1_name == "child" and list2_name == "parent1") or (
-                        list1_name == "parent1" and list2_name == "child"
+                    ## if the files input are gatk and cnvnator, put info in column 4 and 5, 6th column is null
+                    if (list1_name == "gatk" and list2_name == "cnvnator") or (
+                        list1_name == "cnvnator" and list2_name == "gatk"
                     ):
                         overlap_chrom = [
                             chr_list1,
@@ -205,23 +206,9 @@ def generate_consensus(list1_name, list1, list2_name, list2):
                             str(chrom_end),
                             str(cnv_list1).strip(","),
                             list2_chr_str_end.strip(","),
-                            "NULL",
                             m[-1],
                         ]
 
-                    ## if the files input are child and parent2, put info in column 4 and 6, 5th column is null
-                    elif (list1_name == "child" and list2_name == "parent2") or (
-                        list1_name == "parent2" and list2_name == "child"
-                    ):
-                        overlap_chrom = [
-                            chr_list1,
-                            str(chrom_start),
-                            str(chrom_end),
-                            str(cnv_list1).strip(","),
-                            "NULL",
-                            list2_chr_str_end.strip(","),
-                            m[-1],
-                        ]
                     ## Add the formatted consensus CNV into a growing list of consensus CNVs
                     consensus_list = consensus_list + [overlap_chrom]
 
@@ -258,44 +245,32 @@ def save_to_file(output_file_content, output_path, sample_name):
 
 ## Define parser for the input file
 parser = argparse.ArgumentParser(
-    description="""This script takes in 3 bed files, each from one of the 3 samples
-                                                 and find common CNVs between two files at a time."""
+    description="""This script takes in 2 bed files, each from one of the 2 callers
+                                                 and find common CNVs between two files."""
 )
-parser.add_argument("--child", required=True, help="path to the child file")
-parser.add_argument("--parent1", required=True, help="path to the parent1 file")
-parser.add_argument("--parent2", required=True, help="path to the parent2 file")
-parser.add_argument(
-    "--child_parent1",
-    required=True,
-    help="path of the output consensus between child and parent1",
-)
-parser.add_argument(
-    "--child_parent2",
-    required=True,
-    help="path of the output consensus between child and parent2",
-)
-parser.add_argument(
-    "--familyID", default="no_familyid", help="family ID to use in the file"
-)
+parser.add_argument("--gatk", required=True, help="path to the gatk file")
+parser.add_argument("--cnvnator", required=True, help="path to the cnvnator file")
+
 args = parser.parse_args()
 
 
-## Define a list of input samples
-input_samples = ["child", "parent1", "parent2"]
+## Define a list of input callers
+
+input_callers = ["gatk", "cnvnator"]
 input_content = dict()
-for sample in input_samples:
+for caller in input_callers:
     ## Read in the input files as dictionaries
-    input_content[sample] = read_input_file(getattr(args, sample))
+    input_content[caller] = read_input_file(getattr(args, caller))
 
 
 ## Put the output file paths into their own lists that is to be iterated over
 ## This order is important
-## a list for inherenace pairs of samples to make consensus for
-sample_pairs = [('child', 'parent1'), ('child', 'parent2')]
+## Make a list for pairs of callers to make consensus for
+caller_pairs = list(itertools.combinations(input_callers, 2))
 # generate output list in the same order
-output_files = [getattr(args, "_".join(samples)) for samples in sample_pairs]
+output_files = [getattr(args, "_".join(callers)) for callers in caller_pairs]
 
-## Make a list for pairs of samples to make consensus for
+## Make a list for pairs of callers to make consensus for
 
 
 ## We have 3 items in input_content. Each item is the content of an input file
@@ -303,19 +278,19 @@ output_files = [getattr(args, "_".join(samples)) for samples in sample_pairs]
 fin_list = []
 
 ## Loop through list_index
-for sample1, sample2 in sample_pairs:
+for caller1, caller2 in caller_pairs:
 
     ## Compare 1st and 2nd file from list_of_input_contents
     ## Then compare the 1st and 3rd
     ## Then compare the 2nd and 3rd
-    list1 = input_content[sample1]
-    list2 = input_content[sample2]
+    list1 = input_content[caller1]
+    list2 = input_content[caller2]
 
     ## Call the "generate_consensus" function to get consensus CNVs
-    consensus_list = generate_consensus(sample1, list1, sample2, list2)
+    consensus_list = generate_consensus(caller1, list1, caller2, list2)
 
     ## Add the consensus list into a final list that hold the
-    ## content of 3 files - child_p1 , child_p2, and parent1_parent2
+    ## content of 3 files - gatk_cnvnator , gatk_freec, and cnvnator_freec
     fin_list.append(consensus_list)
 
 
@@ -323,4 +298,4 @@ for sample1, sample2 in sample_pairs:
 for content, outfile in zip(fin_list, output_files):
 
     ## Call the "save_to_file" function to print each consensus content to a file.
-    save_to_file(content, outfile, args.familyID)
+    save_to_file(content, outfile, args.sample)

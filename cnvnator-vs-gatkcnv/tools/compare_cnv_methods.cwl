@@ -12,25 +12,19 @@ requirements:
 - class: ShellCommandRequirement
 
 inputs:
-  child_bed_file:
+  gatk_bed_file:
     type: File
     inputBinding:
-      prefix: --child
+      prefix: --gatk
       position: 3
       shellQuote: false
-  parent1_bed_file:
+  cnvnator_bed_file:
     type: File
     inputBinding:
-      prefix: --parent1
+      prefix: --cnvnator
       position: 3
       shellQuote: false
-  parent2_bed_file:
-    type: File
-    inputBinding:
-      prefix: --parent2
-      position: 3
-      shellQuote: false
-  famly_id:
+  sample_id:
     type: string
     inputBinding:
       prefix: --familyID
@@ -41,20 +35,16 @@ inputs:
       
 
 outputs:
-  child_parent1_bedfile:
+  gatk_cnvnator_bedfile:
     type: File
     outputBinding:
-      glob: "*child_parent1.bed"
-  child_parent2_bedfile:
-    type: File
-    outputBinding:
-      glob: "*child_parent2.bed"
+      glob: "*gatk_cnvnator.bed"
 
 
 baseCommand: 
   - python
 arguments:
   - valueFrom: |-
-      compare_variant_calling_updated.py --child_parent1 $(inputs.famly_id).$(inputs.cnv_type).child_parent1.bed --child_parent2 $(inputs.famly_id).$(inputs.cnv_type).child_parent2.bed
+      compare_variant_calling_updated.py --gatk_cnvnator $(inputs.famly_id).$(inputs.cnv_type).gatk_cnvnator.bed
     shellQuote: false
     position: 1
