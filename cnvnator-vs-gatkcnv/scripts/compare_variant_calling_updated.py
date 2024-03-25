@@ -192,7 +192,6 @@ def generate_consensus(list1_name, list1, list2_name, list2):
                     ## Format the output consensus CNV
                     ## Column 4 is gatk's raw coordinates
                     ## Column 5 is cnvnator's raw coordinates
-                    ## Column 6 is freec's raw coordinates
 
                     ## if the files input are gatk and cnvnator, put info in column 4 and 5, 6th column is null
                     if (list1_name == "gatk" and list2_name == "cnvnator") or (
@@ -213,13 +212,12 @@ def generate_consensus(list1_name, list1, list2_name, list2):
     return consensus_list
 
 
-def save_to_file(output_file_content, output_path, sample_name):
+def save_to_file(output_file_content, output_path):
     """Function that takes in content, output file path, and sample name to save the content to a file1
 
     Keyword arguments:
     output_file_content -- content of consensus
     output_path         -- path and name of the output file
-    sample_name         -- sample name of the consensus CNVs.
     """
 
     ## Open up the file to write in it, the 'w' option overwrites the file if the file exists.
@@ -232,7 +230,7 @@ def save_to_file(output_file_content, output_path, sample_name):
         for line_fields in output_file_content:
 
             ## Join the sample_name and single_name(file name) to the CNV info
-            line_fields.extend([sample_name, single_name])
+            line_fields.extend([single_name])
             file.write("\t".join(line_fields) + "\n")
 
     # sys.stderr.write('$$$ Write to file ' + str(output_path) + ' was sucessful\n')
@@ -247,7 +245,11 @@ parser = argparse.ArgumentParser(
                                                  and find common CNVs between two files."""
 )
 parser.add_argument("--gatk_and_cnvnator_bed_files", required=True, help="paths to the gatk and cnvnator bedfiles")
-
+parser.add_argument(
+    "--gatk_cnvnator",
+    required=True,
+    help="path of the output consensus between gatk and cnvnator",
+)
 args = parser.parse_args()
 
 
@@ -255,10 +257,14 @@ args = parser.parse_args()
 
 input_callers = ["gatk", "cnvnator"]
 input_content = dict()
-for caller in input_callers:
-    ## Read in the input files as dictionaries
-    input_content[caller] = read_input_file(getattr(args, caller))
 
+input_paths = args.gatk_and_cnvnator_bed_files.split(',')
+if 'gatk' in input_paths[0]:
+    input_content['gatk'] = read_input_file(input_paths[0])
+    input_content['cnvnator'] = read_input_file(input_paths[1])
+else:
+    input_content['gatk'] = read_input_file(input_paths[1])
+    input_content['cnvnator'] = read_input_file(input_paths[0])
 
 ## Put the output file paths into their own lists that is to be iterated over
 ## This order is important
@@ -295,4 +301,4 @@ for caller1, caller2 in caller_pairs:
 for content, outfile in zip(fin_list, output_files):
 
     ## Call the "save_to_file" function to print each consensus content to a file.
-    save_to_file(content, outfile, args.sample)
+    save_to_file(content, outfile)

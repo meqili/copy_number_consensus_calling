@@ -13,25 +13,20 @@ requirements:
 
 inputs:
   gatk_and_cnvnator_bed_files:
-    type: File
+    type: File[]
     inputBinding:
       prefix: --gatk_and_cnvnator_bed_files
-      itemSeparator: ","
-      separate: false
       position: 3
+      itemSeparator: ","
       shellQuote: false
   sample_id:
     type: string
-    inputBinding:
-      prefix: --familyID
-      position: 3
-      shellQuote: false
   cnv_type:
     type: string
       
 
 outputs:
-  gatk_cnvnator_bedfile:
+  gatk_cnvnator_merged_bedfile:
     type: File
     outputBinding:
       glob: "*gatk_cnvnator.bed"
@@ -41,6 +36,6 @@ baseCommand:
   - python
 arguments:
   - valueFrom: |-
-      compare_variant_calling_updated.py --gatk_cnvnator $(inputs.famly_id).$(inputs.cnv_type).gatk_cnvnator.bed
+      compare_variant_calling_updated.py --gatk_cnvnator $(inputs.sample_id).$(inputs.cnv_type).gatk_cnvnator.bed
     shellQuote: false
     position: 1
