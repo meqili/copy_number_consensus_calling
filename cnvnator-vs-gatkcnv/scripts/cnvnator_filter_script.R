@@ -21,7 +21,7 @@ file_name <- args[3]
 
 nator_cnv %>% filter(nator_cnv$SVTYPE == "DEL" & nator_cnv$SVLEN > cnv_size_cutoff) %>%
   write.table(file = paste0(file_name, ".cnvnator.del.bed"),
-  quote = FALSE, row.names = FALSE, col.names = FALSE)
+  quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
 nator_cnv %>% filter(nator_cnv$SVTYPE == "DUP" & nator_cnv$SVLEN > cnv_size_cutoff) %>%
   write.table(file = paste0(file_name, ".cnvnator.dup.bed"),
-  quote = FALSE, row.names = FALSE, col.names = FALSE)
+  quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")

@@ -34,12 +34,10 @@ import argparse
 import itertools
 import os
 import re
-import sys
 
 
 # Related third party
 import numpy as np
-import pandas as pd
 
 
 ########################## DEFINE FUNCTIONS ###############################
@@ -248,8 +246,7 @@ parser = argparse.ArgumentParser(
     description="""This script takes in 2 bed files, each from one of the 2 callers
                                                  and find common CNVs between two files."""
 )
-parser.add_argument("--gatk", required=True, help="path to the gatk file")
-parser.add_argument("--cnvnator", required=True, help="path to the cnvnator file")
+parser.add_argument("--gatk_and_cnvnator_bed_files", required=True, help="paths to the gatk and cnvnator bedfiles")
 
 args = parser.parse_args()
 

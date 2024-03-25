@@ -23,7 +23,7 @@ file_name <- args[3]
 
 gatk_cnv %>% filter(gatk_cnv$ALT == "DEL" & gatk_cnv$SVLEN > cnv_size_cutoff) %>%
   write.table(file = paste0(file_name, ".gatkcnv.del.bed"),
-  quote = FALSE, row.names = FALSE, col.names = FALSE)
+  quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
 gatk_cnv %>% filter(gatk_cnv$ALT == "DUP" & gatk_cnv$SVLEN > cnv_size_cutoff) %>%
   write.table(file = paste0(file_name, ".gatkcnv.dup.bed"),
-  quote = FALSE, row.names = FALSE, col.names = FALSE)
+  quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")

@@ -12,16 +12,12 @@ requirements:
 - class: ShellCommandRequirement
 
 inputs:
-  gatk_bed_file:
+  gatk_and_cnvnator_bed_files:
     type: File
     inputBinding:
-      prefix: --gatk
-      position: 3
-      shellQuote: false
-  cnvnator_bed_file:
-    type: File
-    inputBinding:
-      prefix: --cnvnator
+      prefix: --gatk_and_cnvnator_bed_files
+      itemSeparator: ","
+      separate: false
       position: 3
       shellQuote: false
   sample_id:
