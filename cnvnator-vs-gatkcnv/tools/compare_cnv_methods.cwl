@@ -21,6 +21,9 @@ inputs:
       shellQuote: false
   sample_id:
     type: string
+    inputBinding:
+      prefix: --sample_id
+      position: 3
   cnv_type:
     type: string
       

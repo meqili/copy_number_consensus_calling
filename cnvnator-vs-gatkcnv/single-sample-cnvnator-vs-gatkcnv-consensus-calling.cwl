@@ -30,16 +30,18 @@ inputs:
   default: 10000
 - id: sample_id
   type: string
+- id: callable_bed_file
+  type: File
 
 outputs:
-- id: gatk_cnvnator_merge_bedfile_del
+- id: clean_cnv_consensus_file
   type: File
   outputSource:
-  - compare_cnv_methods_del/gatk_cnvnator_merged_bedfile
-- id: gatk_cnvnator_merge_bedfile_dup
+  - clean_output/clean_cnv_consensus_file
+- id: neutral_regions_bed_file
   type: File
   outputSource:
-  - compare_cnv_methods_dup/gatk_cnvnator_merged_bedfile
+  - neutral_regions/neutral_regions_bed_file
 
 steps:
 - id: gatk_filter
@@ -156,3 +158,40 @@ steps:
   run: tools/compare_cnv_methods.cwl
   out:
   - id: gatk_cnvnator_merged_bedfile
+- id: remove_inset_calls
+  in: 
+  - id: gatk_cnvnator_del_merge_bed_file
+    source:
+    - compare_cnv_methods_del/gatk_cnvnator_merged_bedfile
+  - id: gatk_cnvnator_dup_merge_bed_file
+    source:
+    - compare_cnv_methods_dup/gatk_cnvnator_merged_bedfile
+  - id: sample_id
+    source: sample_id
+  run: tools/remove_inset_calls.cwl
+  out: 
+  - id: final_gatk_cnvnator_dup_merge_bed_file
+  - id: final_gatk_cnvnator_del_merge_bed_file
+  - id: final_gatk_cnvnator_all_merge_bed_file
+- id: neutral_regions
+  in: 
+  - id: final_family_dup_merge_bed_file
+    source: remove_inset_calls/final_gatk_cnvnator_dup_merge_bed_file
+  - id: final_family_del_merge_bed_file
+    source: remove_inset_calls/final_gatk_cnvnator_del_merge_bed_file
+  - id: sample_id
+    source: sample_id
+  - id: callable_bed_file
+    source: callable_bed_file
+  run: tools/neutral_regions.cwl
+  out:
+  - id: neutral_regions_bed_file
+- id: clean_output
+  in: 
+  - id: cnv_file
+    source: remove_inset_calls/final_gatk_cnvnator_all_merge_bed_file
+  - id: sample_id
+    source: sample_id
+  run: tools/clean_output.cwl
+  out:
+  - id: clean_cnv_consensus_file

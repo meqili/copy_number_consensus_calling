@@ -212,7 +212,7 @@ def generate_consensus(list1_name, list1, list2_name, list2):
     return consensus_list
 
 
-def save_to_file(output_file_content, output_path):
+def save_to_file(output_file_content, output_path, sample_id):
     """Function that takes in content, output file path, and sample name to save the content to a file1
 
     Keyword arguments:
@@ -230,7 +230,7 @@ def save_to_file(output_file_content, output_path):
         for line_fields in output_file_content:
 
             ## Join the sample_name and single_name(file name) to the CNV info
-            line_fields.extend([single_name])
+            line_fields.extend([sample_id])
             file.write("\t".join(line_fields) + "\n")
 
     # sys.stderr.write('$$$ Write to file ' + str(output_path) + ' was sucessful\n')
@@ -250,6 +250,7 @@ parser.add_argument(
     required=True,
     help="path of the output consensus between gatk and cnvnator",
 )
+parser.add_argument("--sample_id", required=True)
 args = parser.parse_args()
 
 
@@ -301,4 +302,4 @@ for caller1, caller2 in caller_pairs:
 for content, outfile in zip(fin_list, output_files):
 
     ## Call the "save_to_file" function to print each consensus content to a file.
-    save_to_file(content, outfile)
+    save_to_file(content, outfile, args.sample_id)
