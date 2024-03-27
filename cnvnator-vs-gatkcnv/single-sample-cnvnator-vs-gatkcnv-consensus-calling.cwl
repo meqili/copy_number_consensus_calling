@@ -22,6 +22,10 @@ inputs:
   default: 3000
 - id: exclude_list
   type: File
+  sbg:suggestedValue:
+    name: cnv_excluded_regions.bed
+    class: File
+    path: 65dcf1737dab775820a7fe54
 - id: excluded_list_overlap_threshold
   type: float?
   default: 0.5
@@ -32,6 +36,10 @@ inputs:
   type: string
 - id: callable_bed_file
   type: File
+  sbg:suggestedValue:
+    name: cnv_callable.bed
+    class: File
+    path: 65e8c81a7dab775820b6b5ce
 
 outputs:
 - id: clean_cnv_consensus_file
